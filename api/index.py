@@ -10,8 +10,9 @@ if str(ROOT) not in sys.path:
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse, Response
 
+from api._bundled_assets import ASSETS, MEDIA_TYPES
 from gemini_core import (
     DEFAULT_GEMINI_MODEL,
     GEMINI_MODELS,
@@ -25,14 +26,6 @@ from gemini_core import (
 )
 
 PUBLIC = API_DIR / "public"
-STATIC_ASSETS = (
-    "app.js",
-    "styles.css",
-    "cartoons.js",
-    "celebration.js",
-    "decorations.js",
-    "imageRecognition.js",
-)
 
 app = FastAPI()
 
@@ -56,11 +49,13 @@ def ensure_models() -> None:
     _models_ready = True
 
 
-def public_file(name: str) -> Path:
-    path = (PUBLIC / name).resolve()
-    if not path.is_file() or PUBLIC.resolve() not in path.parents:
+def asset_response(name: str) -> Response:
+    content = ASSETS.get(name)
+    if content is None and (PUBLIC / name).is_file():
+        content = (PUBLIC / name).read_text(encoding="utf-8")
+    if content is None:
         raise HTTPException(status_code=500, detail=f"Missing static asset: {name}")
-    return path
+    return Response(content=content, media_type=MEDIA_TYPES.get(name, "text/plain; charset=utf-8"))
 
 
 @app.get("/api/health")
@@ -73,8 +68,7 @@ async def health() -> dict:
         "key_type": key_type(api_key) if api_key else None,
         "default_model": DEFAULT_GEMINI_MODEL,
         "active_models": (_active_models or list(GEMINI_MODELS))[:5],
-        "public_dir_exists": PUBLIC.is_dir(),
-        "public_dir": str(PUBLIC),
+        "bundled_assets": len(ASSETS),
     }
 
 
@@ -108,35 +102,35 @@ async def verify_image_route(request: Request) -> JSONResponse:
 
 
 @app.get("/")
-async def serve_index() -> FileResponse:
-    return FileResponse(public_file("index.html"))
+async def serve_index() -> Response:
+    return asset_response("index.html")
 
 
 @app.get("/app.js")
-async def serve_app_js() -> FileResponse:
-    return FileResponse(public_file("app.js"))
+async def serve_app_js() -> Response:
+    return asset_response("app.js")
 
 
 @app.get("/styles.css")
-async def serve_styles_css() -> FileResponse:
-    return FileResponse(public_file("styles.css"))
+async def serve_styles_css() -> Response:
+    return asset_response("styles.css")
 
 
 @app.get("/cartoons.js")
-async def serve_cartoons_js() -> FileResponse:
-    return FileResponse(public_file("cartoons.js"))
+async def serve_cartoons_js() -> Response:
+    return asset_response("cartoons.js")
 
 
 @app.get("/celebration.js")
-async def serve_celebration_js() -> FileResponse:
-    return FileResponse(public_file("celebration.js"))
+async def serve_celebration_js() -> Response:
+    return asset_response("celebration.js")
 
 
 @app.get("/decorations.js")
-async def serve_decorations_js() -> FileResponse:
-    return FileResponse(public_file("decorations.js"))
+async def serve_decorations_js() -> Response:
+    return asset_response("decorations.js")
 
 
 @app.get("/imageRecognition.js")
-async def serve_image_recognition_js() -> FileResponse:
-    return FileResponse(public_file("imageRecognition.js"))
+async def serve_image_recognition_js() -> Response:
+    return asset_response("imageRecognition.js")

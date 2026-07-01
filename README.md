@@ -22,7 +22,13 @@ python3 dev_server.py
 
 Open **http://localhost:8765**
 
-Static files live in `api/public/`; the Python server serves them locally and Vercel bundles them with the API function.
+Static files live in `api/public/`. For Vercel, they are embedded into `api/_bundled_assets.py` at build time:
+
+```bash
+python3 scripts/bundle_static.py
+```
+
+Local dev uses `python3 dev_server.py` and reads files from `api/public/` directly.
 
 > Use `python3 dev_server.py` — not `python3 -m http.server`. The custom server serves the game **and** checks photos with Gemini.
 

@@ -8,3 +8,6 @@ dependencies = [
 
 [tool.vercel]
 entrypoint = "api.index:app"
+
+[tool.vercel.scripts]
+build = "python scripts/bundle_static.py"

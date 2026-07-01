@@ -5,7 +5,7 @@
     "api/index.py": {
       "maxDuration": 60,
       "excludeFiles": "dev_server.py",
-      "includeFiles": "{api/public/**,gemini_core.py}"
+      "includeFiles": "gemini_core.py"
     }
   }
 }
