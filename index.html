@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#fdf2f6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>For You 💕</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="polka"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div id="stickers-bg" class="stickers-bg"></div>
+    <div id="hearts-container" class="hearts-container"></div>
+  </div>
+
+  <main id="app">
+    <!-- Welcome Screen -->
+    <section id="welcome-screen" class="screen active">
+      <div class="welcome-layout">
+        <div class="welcome-hero">
+          <div id="welcome-hero-decorations" class="theme-decorations hero-decorations" aria-hidden="true"></div>
+          <div class="hero-badge">✨ made with love ✨</div>
+          <div id="welcome-cartoon" class="cartoon-hero"></div>
+          <p class="hero-quote">"Six surprises.<br>One at a time."</p>
+          <div class="hero-stickers" aria-hidden="true">
+            <span class="sticker sticker-1">🐾</span>
+            <span class="sticker sticker-2">💌</span>
+            <span class="sticker sticker-3">🌷</span>
+          </div>
+        </div>
+
+        <div class="welcome-panel">
+          <div class="card welcome-card">
+            <div id="welcome-decorations" class="theme-decorations card-decorations" aria-hidden="true"></div>
+            <div class="welcome-chat">
+              <div class="chat-col">
+                <div id="welcome-chat-avatar" class="chat-avatar"></div>
+                <span class="chat-sender" id="welcome-sender">me</span>
+              </div>
+              <div class="chat-messages" id="welcome-messages">
+                <div class="chat-bubble chat-bubble-welcome-title chat-pending">
+                  <h1>six little puzzles</h1>
+                </div>
+                <div class="chat-bubble chat-pending">
+                  <p class="subtitle" id="welcome-subtitle">someone made this just for you~</p>
+                </div>
+                <div class="chat-bubble chat-pending">
+                  <p class="hint">six secrets to unlock… you'll find out one at a time!</p>
+                </div>
+              </div>
+            </div>
+            <div class="welcome-after-chat welcome-after-chat-hidden" id="welcome-after-chat">
+              <div class="welcome-steps welcome-steps-mystery">
+                <div class="step-sticker step-locked"><span class="lock-icon">🔒</span><span>?</span></div>
+                <div class="step-sticker step-locked"><span class="lock-icon">🔒</span><span>?</span></div>
+                <div class="step-sticker step-locked"><span class="lock-icon">🔒</span><span>?</span></div>
+                <div class="step-sticker step-locked"><span class="lock-icon">🔒</span><span>?</span></div>
+                <div class="step-sticker step-locked"><span class="lock-icon">🔒</span><span>?</span></div>
+                <div class="step-sticker step-locked"><span class="lock-icon">🔒</span><span>?</span></div>
+              </div>
+              <button id="start-btn" class="btn btn-primary btn-lg btn-playful">Let's go! →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Puzzle Screen -->
+    <section id="puzzle-screen" class="screen">
+      <div class="puzzle-layout">
+        <aside class="puzzle-sidebar">
+          <div class="sidebar-card">
+            <div id="sidebar-card-decorations" class="sidebar-card-decorations" aria-hidden="true"></div>
+            <div class="sidebar-brand">
+              <span class="brand-icon">💗</span>
+              <span class="brand-text">For You</span>
+            </div>
+
+            <div class="sidebar-body">
+              <div class="sidebar-step">
+                <span class="step-label">Mission</span>
+                <span class="step-big" id="puzzle-number-big">01</span>
+                <span class="step-of">of 6</span>
+              </div>
+
+              <div class="step-dots" id="step-dots"></div>
+
+              <div class="sidebar-progress">
+                <div class="progress-bar">
+                  <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p class="progress-text"><span id="puzzle-number">1</span> / 6 done!</p>
+              </div>
+            </div>
+
+            <div id="sidebar-cartoon" class="sidebar-cartoon"></div>
+          </div>
+        </aside>
+
+        <div class="puzzle-main">
+          <div class="puzzle-card">
+            <header class="puzzle-card-header">
+              <div id="puzzle-reveal-area" class="puzzle-chat">
+                <div class="chat-col">
+                  <div id="puzzle-cartoon" class="chat-avatar puzzle-cartoon-mini"></div>
+                  <span class="chat-sender" id="chat-sender">me</span>
+                </div>
+                <div class="chat-messages">
+                  <div class="chat-bubble chat-bubble-title chat-pending">
+                    <h2 id="puzzle-title"></h2>
+                  </div>
+                  <div class="chat-bubble chat-bubble-body chat-pending">
+                    <p id="puzzle-description" class="puzzle-description"></p>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            <div class="puzzle-body">
+              <div id="puzzle-content" class="puzzle-content"></div>
+            </div>
+
+            <footer class="puzzle-footer">
+              <p id="puzzle-feedback" class="feedback" aria-live="polite"></p>
+              <button id="puzzle-submit" class="btn btn-primary btn-lg btn-playful" hidden>let's look at this~ ✨</button>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Celebration (Three.js) -->
+    <section id="celebration-screen" class="screen">
+      <canvas id="celebration-canvas"></canvas>
+      <div class="celebration-overlay">
+        <div class="celebration-sticker">🎉</div>
+        <h1 class="celebration-title">She said yes!</h1>
+        <p class="celebration-subtitle">This is going to be wonderful.</p>
+      </div>
+    </section>
+  </main>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
