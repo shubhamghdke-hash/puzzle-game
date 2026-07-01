@@ -22,10 +22,6 @@ async function fileToBase64(file) {
  * @param {{ enabled?: boolean, apiUrl?: string, strict?: boolean }} config
  */
 export async function verifyImage(file, subject, config = {}) {
-  if (SKIP_VERIFICATION.has(subject)) {
-    return { ok: true, skipped: true };
-  }
-
   if (!config.enabled) {
     return { ok: true, skipped: true };
   }

@@ -40,14 +40,21 @@ In `.env` set `HOST=0.0.0.0`, restart the server, then open `http://YOUR_COMPUTE
 
 Edit the `CONFIG` and `PUZZLES` array at the top of `app.js`.
 
-## Image recognition
+## Saved uploads
+
+Every photo sent for verification is saved automatically:
+
+- **Local (`dev_server.py`)**: files go to `uploads/` with a log at `uploads/manifest.jsonl`
+- **Vercel**: add a [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) token as `BLOB_READ_WRITE_TOKEN` in project env vars
+
+Set `SAVE_UPLOADS=false` to disable saving.
 
 Photos are sent to **your local Python server**, which calls Gemini. The API key stays in `.env` on your machine — not in the browser.
 
 | Mission | Verified? |
 |---------|-----------|
 | Dog, cat, flower, dish | Yes — Gemini checks the photo |
-| Cute | No — any image passes |
+| Cute | No — any image passes (still saved + described) |
 
 To disable checks (any image passes), set in `app.js`:
 

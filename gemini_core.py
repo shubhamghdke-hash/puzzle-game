@@ -10,6 +10,8 @@ import sys
 import urllib.error
 import urllib.request
 
+from upload_storage import save_upload
+
 SKIP_VERIFICATION = {"cute"}
 
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
@@ -407,22 +409,34 @@ def describe_image(mime_type: str, image_b64: str, subject: str = "") -> str:
     )
 
 
+def _attach_saved(result: dict, saved: dict | None) -> dict:
+    if saved:
+        result["saved"] = True
+        result["saved_to"] = saved.get("storage")
+    return result
+
+
 def verify_image(subject: str, mime_type: str, image_b64: str) -> dict:
+    saved = save_upload(subject, mime_type, image_b64)
+
     if subject in SKIP_VERIFICATION:
         description = describe_image(mime_type, image_b64, subject)
-        return {"ok": True, "skipped": True, "description": description}
+        return _attach_saved({"ok": True, "skipped": True, "description": description}, saved)
 
     api_key = get_api_key()
     if not api_key:
-        return {
-            "ok": False,
-            "message": "Server missing GEMINI_API_KEY — add it to environment variables",
-        }
+        return _attach_saved(
+            {
+                "ok": False,
+                "message": "Server missing GEMINI_API_KEY — add it to environment variables",
+            },
+            saved,
+        )
 
     rule = VALIDATION_RULES.get(subject)
     if not rule:
         description = describe_image(mime_type, image_b64, subject)
-        return {"ok": True, "skipped": True, "description": description}
+        return _attach_saved({"ok": True, "skipped": True, "description": description}, saved)
 
     prompt = verification_prompt(rule)
     models = _active_models or list(GEMINI_MODELS)
@@ -435,18 +449,21 @@ def verify_image(subject: str, mime_type: str, image_b64: str) -> dict:
                 continue
             ok, reason = parse_verification_result(text)
             description = describe_image(mime_type, image_b64, subject) if ok else ""
-            return {
-                "ok": ok,
-                "message": ""
-                if ok
-                else (
-                    reason
-                    or f"That doesn't look like {SUBJECT_PROMPTS.get(subject, 'the right thing')} — try another photo?"
-                ),
-                "description": description,
-                "raw": text.strip(),
-                "model": model,
-            }
+            return _attach_saved(
+                {
+                    "ok": ok,
+                    "message": ""
+                    if ok
+                    else (
+                        reason
+                        or f"That doesn't look like {SUBJECT_PROMPTS.get(subject, 'the right thing')} — try another photo?"
+                    ),
+                    "description": description,
+                    "raw": text.strip(),
+                    "model": model,
+                },
+                saved,
+            )
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError) as err:
             last_error = err
 
@@ -460,6 +477,6 @@ def verify_image(subject: str, mime_type: str, image_b64: str) -> dict:
         else:
             message = f"Gemini error ({last_error.code}): {body}"
 
-    return {"ok": False, "message": message}
+    return _attach_saved({"ok": False, "message": message}, saved)
 
 
