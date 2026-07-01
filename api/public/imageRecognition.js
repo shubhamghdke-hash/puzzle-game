@@ -1,5 +1,3 @@
-const SKIP_VERIFICATION = new Set(['cute']);
-
 const SUBJECT_PROMPTS = {
   dog: 'a dog',
   cat: 'a cat',
