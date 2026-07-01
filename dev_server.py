@@ -22,6 +22,7 @@ from gemini_core import (
 )
 
 ROOT = Path(__file__).resolve().parent
+PUBLIC = ROOT / "public"
 
 
 def load_env() -> None:
@@ -38,7 +39,7 @@ def load_env() -> None:
 
 class PuzzleHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
+        super().__init__(*args, directory=str(PUBLIC), **kwargs)
 
     def log_message(self, format: str, *args) -> None:
         if self.path.startswith("/api/"):
