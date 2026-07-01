@@ -22,7 +22,7 @@ from gemini_core import (
 )
 
 ROOT = Path(__file__).resolve().parent
-PUBLIC = ROOT / "public"
+PUBLIC = ROOT / "api" / "public"
 
 
 def load_env() -> None:

@@ -22,7 +22,7 @@ python3 dev_server.py
 
 Open **http://localhost:8765**
 
-Static files live in `public/`; the Python server serves them locally and Vercel serves them from the CDN in production.
+Static files live in `api/public/`; the Python server serves them locally and Vercel bundles them with the API function.
 
 > Use `python3 dev_server.py` — not `python3 -m http.server`. The custom server serves the game **and** checks photos with Gemini.
 

@@ -3,7 +3,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+API_DIR = Path(__file__).resolve().parent
+ROOT = API_DIR.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -23,7 +24,7 @@ from gemini_core import (
     verify_image,
 )
 
-PUBLIC = ROOT / "public"
+PUBLIC = API_DIR / "public"
 STATIC_ASSETS = (
     "app.js",
     "styles.css",
@@ -73,6 +74,7 @@ async def health() -> dict:
         "default_model": DEFAULT_GEMINI_MODEL,
         "active_models": (_active_models or list(GEMINI_MODELS))[:5],
         "public_dir_exists": PUBLIC.is_dir(),
+        "public_dir": str(PUBLIC),
     }
 
 
