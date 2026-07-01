@@ -9,7 +9,7 @@ export const CONFIG = {
   // Set true to skip uploads — click "Go ahead" to pass each mission. Turn off before sharing!
   testMode: false,
 
-  // Image recognition via Python server (server.py) + Gemini — see README
+  // Image recognition via dev_server.py + Gemini — see README
   imageRecognition: {
     enabled: true,
     apiUrl: '/api/verify-image',

@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from server import get_api_key, test_gemini
+from gemini_core import get_api_key, test_gemini
 from vercel_api import send_json
 
 

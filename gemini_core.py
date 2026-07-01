@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Serve the puzzle game and verify uploads with Gemini."""
+"""Gemini image verification logic shared by local dev and Vercel API routes."""
 
 from __future__ import annotations
 
@@ -9,10 +9,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
 SKIP_VERIFICATION = {"cute"}
 
 DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
@@ -56,18 +53,6 @@ JSON_RESPONSE_SCHEMA = {
 }
 
 _active_models: list[str] = []
-
-
-def load_env() -> None:
-    env_path = ROOT / ".env"
-    if not env_path.exists():
-        return
-    for line in env_path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        os.environ[key.strip()] = value.strip().strip('"').strip("'")
 
 
 def get_api_key() -> str:
@@ -431,7 +416,7 @@ def verify_image(subject: str, mime_type: str, image_b64: str) -> dict:
     if not api_key:
         return {
             "ok": False,
-            "message": "Server missing GEMINI_API_KEY — add it to .env and restart server.py",
+            "message": "Server missing GEMINI_API_KEY — add it to environment variables",
         }
 
     rule = VALIDATION_RULES.get(subject)
@@ -471,124 +456,10 @@ def verify_image(subject: str, mime_type: str, image_b64: str) -> dict:
         if last_error.code in (401, 403):
             message = f"Gemini rejected the API key ({key_type(api_key)}). Check GEMINI_API_KEY in .env."
         elif last_error.code == 404:
-            message = f"Gemini model not found — using {DEFAULT_GEMINI_MODEL}. Restart server.py."
+            message = f"Gemini model not found — check the configured model list."
         else:
             message = f"Gemini error ({last_error.code}): {body}"
 
     return {"ok": False, "message": message}
 
 
-class PuzzleHandler(SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(ROOT), **kwargs)
-
-    def log_message(self, format: str, *args) -> None:
-        if self.path.startswith("/api/"):
-            sys.stderr.write("%s - %s\n" % (self.address_string(), format % args))
-
-    def end_headers(self) -> None:
-        self.send_header("Cache-Control", "no-cache")
-        super().end_headers()
-
-    def do_OPTIONS(self) -> None:
-        if self.path.startswith("/api/"):
-            self.send_response(204)
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type")
-            self.end_headers()
-            return
-        self.send_error(404)
-
-    def do_GET(self) -> None:
-        if self.path == "/api/health":
-            api_key = get_api_key()
-            self.send_json(
-                200,
-                {
-                    "ok": True,
-                    "gemini_configured": bool(api_key),
-                    "key_format_ok": key_looks_valid(api_key),
-                    "key_type": key_type(api_key) if api_key else None,
-                    "default_model": DEFAULT_GEMINI_MODEL,
-                    "active_models": (_active_models or list(GEMINI_MODELS))[:5],
-                },
-            )
-            return
-
-        if self.path == "/api/test-gemini":
-            result = test_gemini(get_api_key())
-            self.send_json(200 if result.get("ok") else 503, result)
-            return
-
-        super().do_GET()
-
-    def do_POST(self) -> None:
-        if self.path != "/api/verify-image":
-            self.send_error(404)
-            return
-
-        try:
-            length = int(self.headers.get("Content-Length", "0"))
-            body = json.loads(self.rfile.read(length).decode("utf-8"))
-            subject = str(body.get("subject", "")).strip()
-            mime_type = str(body.get("mimeType", "image/jpeg")).strip() or "image/jpeg"
-            image_b64 = str(body.get("image", "")).strip()
-
-            if not subject:
-                self.send_json(400, {"ok": False, "message": "Missing subject"})
-                return
-            if not image_b64:
-                self.send_json(400, {"ok": False, "message": "Missing image"})
-                return
-
-            result = verify_image(subject, mime_type, image_b64)
-            status = 200 if result.get("ok") else 422
-            self.send_json(status, result)
-        except json.JSONDecodeError:
-            self.send_json(400, {"ok": False, "message": "Invalid JSON body"})
-        except Exception as err:
-            self.send_json(500, {"ok": False, "message": str(err)})
-
-    def send_json(self, status: int, payload: dict) -> None:
-        data = json.dumps(payload).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(data)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(data)
-
-
-def main() -> None:
-    load_env()
-    port = int(os.environ.get("PORT", "8765"))
-    host = os.environ.get("HOST", "127.0.0.1")
-    api_key = get_api_key()
-
-    print(f"Serving puzzle game at http://{host}:{port}")
-    print(f"Default Gemini model: {DEFAULT_GEMINI_MODEL}")
-
-    if not api_key:
-        print("Gemini API key: NOT SET — add GEMINI_API_KEY to .env")
-    else:
-        print(f"Gemini API key: configured ({key_type(api_key)} key)")
-        test = test_gemini(api_key)
-        if test.get("ok"):
-            print(f"Gemini test: OK (model {test.get('model')})")
-        else:
-            print(f"Gemini test: FAILED — {test.get('message')}")
-
-    print("Press Ctrl+C to stop")
-
-    httpd = ThreadingHTTPServer((host, port), PuzzleHandler)
-
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        print("\nStopped.")
-        httpd.server_close()
-
-
-if __name__ == "__main__":
-    main()

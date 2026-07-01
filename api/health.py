@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from server import (
+from gemini_core import (
     DEFAULT_GEMINI_MODEL,
     GEMINI_MODELS,
     _active_models,

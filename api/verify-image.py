@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from server import get_api_key, init_models, verify_image
+from gemini_core import get_api_key, init_models, verify_image
 from vercel_api import cors_headers, send_json
 
 _models_ready = False

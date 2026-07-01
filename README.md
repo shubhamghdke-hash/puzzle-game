@@ -17,12 +17,12 @@ GEMINI_API_KEY=AIzaSy...
 Start the server:
 
 ```bash
-python3 server.py
+python3 dev_server.py
 ```
 
 Open **http://localhost:8765**
 
-> Use `python3 server.py` — not `python3 -m http.server`. The custom server serves the game **and** checks photos with Gemini.
+> Use `python3 dev_server.py` — not `python3 -m http.server`. The custom server serves the game **and** checks photos with Gemini.
 
 ### Test on your phone (same Wi‑Fi)
 
@@ -69,4 +69,4 @@ Good luck. 🌸
 
 Check deployment: `https://YOUR-APP.vercel.app/api/health`
 
-Local dev still uses `python3 server.py` on port 8765.
+Local dev still uses `python3 dev_server.py` on port 8765.
