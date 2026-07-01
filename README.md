@@ -59,3 +59,14 @@ imageRecognition: { enabled: false }
 | 6 | **Would you like to go out with me on Sunday?** |
 
 Good luck. 🌸
+
+## Deploy to Vercel
+
+1. Push this repo to GitHub.
+2. Import the project at [vercel.com/new](https://vercel.com/new).
+3. Add environment variable **`GEMINI_API_KEY`** in Vercel project settings.
+4. Deploy — static files are served from the repo root; `/api/*` routes run as Python serverless functions.
+
+Check deployment: `https://YOUR-APP.vercel.app/api/health`
+
+Local dev still uses `python3 server.py` on port 8765.

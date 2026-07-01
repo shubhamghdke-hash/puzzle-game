@@ -69,7 +69,7 @@ export async function verifyImage(file, subject, config = {}) {
 
     return {
       ok: false,
-      message: "Couldn't verify — run the game with: python3 server.py",
+      message: "Couldn't verify the photo right now — try again in a moment.",
       error: err.message,
     };
   }
