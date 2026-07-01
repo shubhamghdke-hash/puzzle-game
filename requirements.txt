@@ -1,1 +1,1 @@
-# Stdlib only — listed so Vercel enables the Python runtime.
+fastapi>=0.115.0

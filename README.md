@@ -65,7 +65,7 @@ Good luck. 🌸
 1. Push this repo to GitHub.
 2. Import the project at [vercel.com/new](https://vercel.com/new).
 3. Add environment variable **`GEMINI_API_KEY`** in Vercel project settings.
-4. Deploy — static files are served from the repo root; `/api/*` routes run as Python serverless functions.
+4. Deploy — static files are served from the repo root; `/api/*` routes are handled by `api/index.py` (FastAPI).
 
 Check deployment: `https://YOUR-APP.vercel.app/api/health`
 
