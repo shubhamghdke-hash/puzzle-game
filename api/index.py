@@ -7,10 +7,9 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
 
 from gemini_core import (
     DEFAULT_GEMINI_MODEL,
@@ -25,6 +24,14 @@ from gemini_core import (
 )
 
 PUBLIC = ROOT / "public"
+STATIC_ASSETS = (
+    "app.js",
+    "styles.css",
+    "cartoons.js",
+    "celebration.js",
+    "decorations.js",
+    "imageRecognition.js",
+)
 
 app = FastAPI()
 
@@ -48,6 +55,13 @@ def ensure_models() -> None:
     _models_ready = True
 
 
+def public_file(name: str) -> Path:
+    path = (PUBLIC / name).resolve()
+    if not path.is_file() or PUBLIC.resolve() not in path.parents:
+        raise HTTPException(status_code=500, detail=f"Missing static asset: {name}")
+    return path
+
+
 @app.get("/api/health")
 async def health() -> dict:
     api_key = get_api_key()
@@ -58,6 +72,7 @@ async def health() -> dict:
         "key_type": key_type(api_key) if api_key else None,
         "default_model": DEFAULT_GEMINI_MODEL,
         "active_models": (_active_models or list(GEMINI_MODELS))[:5],
+        "public_dir_exists": PUBLIC.is_dir(),
     }
 
 
@@ -90,5 +105,36 @@ async def verify_image_route(request: Request) -> JSONResponse:
     return JSONResponse(result, status_code=status)
 
 
-# API routes are registered above; static assets for Vercel (all traffic hits FastAPI).
-app.mount("/", StaticFiles(directory=str(PUBLIC), html=True), name="static")
+@app.get("/")
+async def serve_index() -> FileResponse:
+    return FileResponse(public_file("index.html"))
+
+
+@app.get("/app.js")
+async def serve_app_js() -> FileResponse:
+    return FileResponse(public_file("app.js"))
+
+
+@app.get("/styles.css")
+async def serve_styles_css() -> FileResponse:
+    return FileResponse(public_file("styles.css"))
+
+
+@app.get("/cartoons.js")
+async def serve_cartoons_js() -> FileResponse:
+    return FileResponse(public_file("cartoons.js"))
+
+
+@app.get("/celebration.js")
+async def serve_celebration_js() -> FileResponse:
+    return FileResponse(public_file("celebration.js"))
+
+
+@app.get("/decorations.js")
+async def serve_decorations_js() -> FileResponse:
+    return FileResponse(public_file("decorations.js"))
+
+
+@app.get("/imageRecognition.js")
+async def serve_image_recognition_js() -> FileResponse:
+    return FileResponse(public_file("imageRecognition.js"))
