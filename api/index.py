@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from gemini_core import (
     DEFAULT_GEMINI_MODEL,
@@ -22,6 +23,8 @@ from gemini_core import (
     test_gemini,
     verify_image,
 )
+
+PUBLIC = ROOT / "public"
 
 app = FastAPI()
 
@@ -85,3 +88,7 @@ async def verify_image_route(request: Request) -> JSONResponse:
     result = verify_image(subject, mime_type, image_b64)
     status = 200 if result.get("ok") else 422
     return JSONResponse(result, status_code=status)
+
+
+# API routes are registered above; static assets for Vercel (all traffic hits FastAPI).
+app.mount("/", StaticFiles(directory=str(PUBLIC), html=True), name="static")
